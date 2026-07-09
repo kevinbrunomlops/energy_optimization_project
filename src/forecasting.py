@@ -8,32 +8,22 @@ import numpy as np
 from src.config import MODEL_PATH, RANDOM_STATE
 from src.features import get_model_input, get_target
 
-def train_linear_regression(df):
-    """ 
-    Train a Linear Regression model.
-    """
-
+def train_model(df, model_type="random_forest"):
+    if model_type == "linear":
+        model= LinearRegression()
+    
+    elif model_type == "random_forest":
+        model = RandomForestRegressor(
+            n_estimators=200,
+            max_depth=10,
+            random_state=RANDOM_STATE,
+        )
+    
+    else:
+        raise ValueError(f"Unknwon model type: {model_type}")
+    
     X = get_model_input(df)
     y = get_target(df)
-
-    model = LinearRegression()
-    model.fit(X, y)
-
-    return model
-
-def train_random_forest(df):
-    """
-    Train a Random Forest model.
-    """
-
-    X = get_model_input(df)
-    y = get_target(df)
-
-    model = RandomForestRegressor(
-        n_estimators=200,
-        max_depth=10,
-        random_state=RANDOM_STATE,
-    )
 
     model.fit(X, y)
 
