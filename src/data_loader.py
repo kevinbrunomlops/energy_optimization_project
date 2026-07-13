@@ -6,7 +6,7 @@ from src.config import (
     PRICE_COLUMN, 
     TEMPERATURE_COLUMN,
     LOAD_COLUMN,
-    ENERGY_COLUMN
+    ENERGY_COLUMN,
 )
 
 REQUIRED_COLUMNS = [
