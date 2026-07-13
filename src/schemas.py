@@ -46,6 +46,8 @@ class OptimizeResponse(BaseModel):
     Response returned by the optimization endpoint.
     """
 
+    date: str
+
     recommended_start: str
     recommended_end: str
 
