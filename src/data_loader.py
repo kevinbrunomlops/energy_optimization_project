@@ -39,6 +39,6 @@ def load_data(file_path=DATA_PATH):
 
     df = df.dropna()
 
-    df = df.reset_indes(drop=True)
+    df = df.reset_index(drop=True)
 
     return df

@@ -40,18 +40,20 @@ class OptimizeRequest(BaseModel):
         description="Baseline process end hour."
     )
 
-    class OptimizeResponse(BaseModel):
-        """
-        Response returned by the optimization endpoint.
-        """
-        recommended_start: str
-        recommended_end: str
 
-        estimated_cost: float
-        baseline_cost: float
+class OptimizeResponse(BaseModel):
+    """
+    Response returned by the optimization endpoint.
+    """
 
-        saving: float
-        saving_percent: float
+    recommended_start: str
+    recommended_end: str
+
+    estimated_cost: float
+    baseline_cost: float
+
+    saving: float
+    saving_percent: float
 
 
         

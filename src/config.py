@@ -8,9 +8,9 @@ MODEL_DIR = PROJECT_ROOT / "models"
 DATA_PATH = DATA_DIR / "hourly_energy_data.csv"
 MODEL_PATH = PROJECT_ROOT / "energy_model.pkl"
 
-# Prrocess settings
+# Process settings
 PROCESS_DURATION_HOURS = 4
-ENERGY_USAGE_PER_HOURS_KWH = 120
+ENERGY_USAGE_PER_HOUR_KWH = 120
 
 # Standard run window
 DEFAULT_START_HOUR = 8
@@ -30,4 +30,3 @@ ENERGY_COLUMN = "historical_energy_usage"
 # Model settings
 RANDOM_STATE = 42
 TEST_SIZE = 0.2
-
