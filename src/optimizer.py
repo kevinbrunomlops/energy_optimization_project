@@ -58,6 +58,9 @@ def find_cheapest_window(
                 "estimated_cost": round(cost, 2),
             }
 
+    if best_window is None:
+        raise ValueError("No valid optimization window found for the provided constraints.")
+
     return best_window
 
 def calculate_baseline_cost(
