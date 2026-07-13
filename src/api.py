@@ -31,22 +31,19 @@ def _serialize_record(record):
     return serialized
 
 
-def _load_latest_day():
-    df = load_data()
-    latest_date = df[TIMESTAMP_COLUMN].dt.date.max()
-    return df[df[TIMESTAMP_COLUMN].dt.date == latest_date].reset_index(drop=True)
-
-
 def _to_optimize_response(result):
+    date = result.get("date")
+
     return {
         **result,
+        "date": date.isoformat() if hasattr(date, "isoformat") else str(date),
         "recommended_start": result["recommended_start"].isoformat(),
         "recommended_end": result["recommended_end"].isoformat(),
     }
 
 
 def _run_optimization(request: OptimizeRequest):
-    df = _load_latest_day()
+    df = load_data()
 
     try:
         result = optimize_schedule(
