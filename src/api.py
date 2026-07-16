@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Query
+import pandas as pd
 
 from src.data_loader import load_data
 from src.forecasting import load_model, predict_energy_usage, train_model
@@ -13,6 +14,8 @@ from src.config import (
     TEMPERATURE_COLUMN,
     TIMESTAMP_COLUMN,
 )
+
+FORECAST_COLUMN = "predicted_energy_usage_kwh"
 
 app = FastAPI(
     title="Energy Optimization API",
@@ -31,6 +34,53 @@ def _serialize_record(record):
     return serialized
 
 
+def _load_forecast_model(df):
+    model_exists = MODEL_PATH.exists()
+
+    try:
+        model = load_model()
+        model_source = "saved_model"
+    except FileNotFoundError:
+        model = train_model(df)
+        model_source = "trained_in_memory"
+
+    if model_exists and model_source != "saved_model":
+        model_source = "trained_in_memory"
+
+    return model, model_source
+
+
+def _add_energy_forecast(df):
+    model, model_source = _load_forecast_model(df)
+    forecast_df = predict_energy_usage(model, df)
+    forecast_df[FORECAST_COLUMN] = forecast_df[FORECAST_COLUMN].round(2)
+
+    return forecast_df, model_source
+
+
+def _filter_forecast_date(df, target_date=None):
+    if target_date is None:
+        selected_date = df[TIMESTAMP_COLUMN].dt.date.max()
+    else:
+        try:
+            selected_date = pd.to_datetime(target_date).date()
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=400,
+                detail="date must use YYYY-MM-DD format.",
+            ) from exc
+
+    day_df = df[df[TIMESTAMP_COLUMN].dt.date == selected_date].reset_index(drop=True)
+
+    if day_df.empty:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No data found for date {selected_date.isoformat()}.",
+        )
+
+    return day_df, selected_date
+
+
 def _to_optimize_response(result):
     date = result.get("date")
 
@@ -44,10 +94,11 @@ def _to_optimize_response(result):
 
 def _run_optimization(request: OptimizeRequest):
     df = load_data()
+    forecast_df, _ = _add_energy_forecast(df)
 
     try:
         result = optimize_schedule(
-            df=df,
+            df=forecast_df,
             process_duration_hours=request.process_duration_hours,
             earliest_start=request.earliest_start,
             latest_end=request.latest_end,
@@ -98,30 +149,42 @@ def get_data(limit: int = Query(default=24, ge=1, le=500)):
 
 
 @app.get("/forecast")
-def get_forecast(limit: int = Query(default=24, ge=1, le=500)):
+def get_forecast(
+    date: str | None = Query(default=None, description="Forecast date in YYYY-MM-DD format."),
+    limit: int = Query(default=24, ge=1, le=500),
+):
     df = load_data()
-
-    try:
-        model = load_model()
-    except FileNotFoundError:
-        model = train_model(df)
-
-    forecast_df = predict_energy_usage(model, df).tail(limit)
+    forecast_df, model_source = _add_energy_forecast(df)
+    day_df, selected_date = _filter_forecast_date(forecast_df, date)
+    day_df = day_df.head(limit)
     columns = [
         TIMESTAMP_COLUMN,
         PRICE_COLUMN,
         TEMPERATURE_COLUMN,
         LOAD_COLUMN,
         ENERGY_COLUMN,
-        "predicted_energy_usage_kwh",
+        FORECAST_COLUMN,
     ]
 
-    records = forecast_df[columns].to_dict(orient="records")
+    records = day_df[columns].to_dict(orient="records")
+    total_predicted_usage = day_df[FORECAST_COLUMN].sum()
+    estimated_total_cost = (
+        day_df[PRICE_COLUMN]
+        * day_df[FORECAST_COLUMN]
+    ).sum()
 
     return {
-        "rows": len(df),
+        "date": selected_date.isoformat(),
+        "rows": len(day_df),
         "returned": len(records),
-        "model_source": "saved_model" if MODEL_PATH.exists() else "trained_in_memory",
+        "model_source": model_source,
+        "summary": {
+            "average_predicted_energy_usage_kwh": float(
+                round(day_df[FORECAST_COLUMN].mean(), 2)
+            ),
+            "total_predicted_energy_usage_kwh": float(round(total_predicted_usage, 2)),
+            "estimated_total_cost": float(round(estimated_total_cost, 2)),
+        },
         "forecast": [_serialize_record(record) for record in records],
     }
 

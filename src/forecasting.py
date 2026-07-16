@@ -10,7 +10,7 @@ from src.features import get_model_input, get_target
 
 def train_model(df, model_type="random_forest"):
     if model_type == "linear":
-        model= LinearRegression()
+        model = LinearRegression()
     
     elif model_type == "random_forest":
         model = RandomForestRegressor(
@@ -20,7 +20,7 @@ def train_model(df, model_type="random_forest"):
         )
     
     else:
-        raise ValueError(f"Unknwon model type: {model_type}")
+        raise ValueError(f"Unknown model type: {model_type}")
     
     X = get_model_input(df)
     y = get_target(df)
