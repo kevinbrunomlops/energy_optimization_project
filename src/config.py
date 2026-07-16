@@ -6,7 +6,7 @@ DATA_DIR = PROJECT_ROOT / "data/simulated"
 MODEL_DIR = PROJECT_ROOT / "models"
 
 DATA_PATH = DATA_DIR / "hourly_energy_data.csv"
-MODEL_PATH = PROJECT_ROOT / "energy_model.pkl"
+MODEL_PATH = MODEL_DIR / "energy_model.pkl"
 
 # Process settings
 PROCESS_DURATION_HOURS = 4
