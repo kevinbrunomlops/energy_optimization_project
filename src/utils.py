@@ -1,4 +1,3 @@
-from datetime import datetime
 import pandas as pd
 
 def format_currency(value):
@@ -15,6 +14,15 @@ def format_perentage(value):
 
     return f"{value:.2f}%"
 
+
+def format_percentage(value):
+    """
+    Format a percentage with two decimals.
+    """
+
+    return format_perentage(value)
+
+
 def validate_time_window(start_hour, end_hour):
     """
     Validate that a time window is valid.
@@ -28,7 +36,7 @@ def validate_time_window(start_hour, end_hour):
     
 def create_date_filter(df, start_date=None, end_date=None):
     """
-    Filter a DateFrame by timestamp.
+    Filter a DataFrame by timestamp.
     """
 
     filtered_df = df.copy()

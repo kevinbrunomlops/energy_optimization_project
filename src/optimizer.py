@@ -1,11 +1,14 @@
 import pandas as pd
 
 from src.config import (
+    ENERGY_COLUMN,
     PROCESS_DURATION_HOURS,
     ENERGY_USAGE_PER_HOUR_KWH,
     PRICE_COLUMN,
     TIMESTAMP_COLUMN,
 )
+
+PREDICTED_ENERGY_COLUMN = "predicted_energy_usage_kwh"
 
 
 def calculate_window_cost(window_df):
@@ -13,10 +16,17 @@ def calculate_window_cost(window_df):
     Calculate process cost for a time window.
     """
 
-    return (
-        window_df[PRICE_COLUMN].sum()
-        * ENERGY_USAGE_PER_HOUR_KWH
-    )
+    if PREDICTED_ENERGY_COLUMN in window_df.columns:
+        energy_usage = window_df[PREDICTED_ENERGY_COLUMN]
+    elif ENERGY_COLUMN in window_df.columns:
+        energy_usage = window_df[ENERGY_COLUMN]
+    else:
+        energy_usage = ENERGY_USAGE_PER_HOUR_KWH
+
+    if hasattr(energy_usage, "sum"):
+        return (window_df[PRICE_COLUMN] * energy_usage).sum()
+
+    return window_df[PRICE_COLUMN].sum() * energy_usage
 
 
 def find_cheapest_window(

@@ -30,7 +30,7 @@ class OptimizeRequest(BaseModel):
         default=8,
         ge=0,
         le=23,
-        description="Baseline process starat hour."
+        description="Baseline process start hour."
     )
 
     baseline_end: int = Field(
