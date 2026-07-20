@@ -1,0 +1,18 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile/api.Dockerfile
+    container_name: energy-optimization-api
+    ports:
+      - "8000:8000"
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile/dashboard.Dockerfile
+    container_name: energy-optimization-dashboard
+    depends_on:
+      - api
+    ports:
+      - "8501:8501"
