@@ -7,7 +7,7 @@ from src.config import DATA_PATH
 
 
 def generate_energy_data(
-    days=120,
+    days=90,
     start_date="2024-01-01",
     output_path=DATA_PATH,
     overwrite=True,
@@ -142,8 +142,8 @@ def generate_energy_data(
 
 
 if __name__ == "__main__":
-    df = generate_energy_data(overwrite=False)
-    # Generate new data
-    # df = generate_energy_data(days=120)
+    df = generate_energy_data(days=90)
     print(f"Generated {len(df)} rows")
     print(df.head())
+    
+    
