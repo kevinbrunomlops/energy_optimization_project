@@ -28,6 +28,9 @@ The application currently supports:
 - Serving the workflow through a FastAPI backend
 - Presenting the recommendation in a Streamlit dashboard
 - Running the API and dashboard with Docker Compose
+- Checking code quality with Ruff
+- Testing core behavior with Pytest
+- Running automated CI checks with GitHub Actions
 
 ## MVP Goals
 
@@ -93,6 +96,9 @@ This MVP uses simulated industrial energy and price data to demonstrate the opti
 | Visualization | Matplotlib, Seaborn |
 | Experimentation | Jupyter notebooks |
 | Containerization | Docker, Docker Compose |
+| Testing | Pytest |
+| Code quality | Ruff |
+| CI/CD | GitHub Actions |
 
 ## Architecture
 
@@ -147,6 +153,9 @@ energy_optimization_project/
 ├── Dockerfile/
 │   ├── api.Dockerfile
 │   └── dashboard.Dockerfile
+├── .github/
+│   └── workflows/
+│       └── ci.yml
 ├── models/
 │   └── energy_model.pkl
 ├── notebooks/
@@ -165,6 +174,10 @@ energy_optimization_project/
 │   ├── optimizer.py
 │   ├── schemas.py
 │   └── utils.py
+├── tests/
+│   ├── test_api.py
+│   ├── test_forecasting.py
+│   └── test_optimizer.py
 ├── .dockerignore
 ├── .python-version
 ├── docker-compose.yml
@@ -306,6 +319,13 @@ Run the dashboard:
 uv run streamlit run dashboard/app.py
 ```
 
+Run quality checks:
+
+```bash
+uv run ruff check .
+uv run pytest
+```
+
 Local URLs:
 
 ```text
@@ -340,6 +360,37 @@ docker-compose.yml
 
 Both containers install dependencies with `uv sync --frozen --no-dev` using `pyproject.toml` and `uv.lock`.
 
+## Quality Checks
+
+Version 2 of the project adds a lightweight quality layer:
+
+- `ruff` for fast Python linting
+- `pytest` for focused tests around optimization, forecasting, and API helpers
+- GitHub Actions for automated checks on push and pull request
+
+The test suite intentionally stays small and high-signal for an MVP:
+
+| Test file | Coverage |
+| --- | --- |
+| `tests/test_optimizer.py` | Cheapest window selection, invalid constraints, daily optimization |
+| `tests/test_forecasting.py` | Feature creation and prediction output shape |
+| `tests/test_api.py` | API metadata, health, data response, missing forecast date handling |
+
+Run locally with:
+
+```bash
+uv run ruff check .
+uv run pytest
+```
+
+The CI workflow is defined in:
+
+```text
+.github/workflows/ci.yml
+```
+
+It runs on both `push` and `pull_request`.
+
 ## Notebooks
 
 The notebooks are used for exploration and storytelling, not production code:
@@ -367,8 +418,8 @@ Production logic lives in `src/` so the notebooks, API, and dashboard can share 
 - Add configurable process duration in the dashboard
 - Support multiple production processes
 - Add database storage for historical runs and recommendations
-- Add automated tests for forecasting, optimization, and API endpoints
-- Add CI checks for formatting, tests, and Docker builds
+- Expand automated tests for edge cases and dashboard-adjacent logic
+- Add Docker build checks to CI
 - Add screenshots and an architecture diagram under `docs/`
 
 ## Status
