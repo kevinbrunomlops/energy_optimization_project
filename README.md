@@ -304,7 +304,7 @@ uv sync
 Train the model:
 
 ```bash
-uv run python scripts/train_model.py
+uv run python -m scripts.train_model
 ```
 
 Run the API:
