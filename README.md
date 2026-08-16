@@ -1,4 +1,5 @@
 # Energy Optimization Project
+![Dashboard](assets/dashboard.png)
 
 An end-to-end MLOps MVP for industrial energy scheduling.
 
